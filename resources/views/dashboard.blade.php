@@ -1,102 +1,138 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Dashboard Aspirasi Siswa') }}
+        <h2 class="text-2xl font-bold text-gray-800">
+            Dashboard Aspirasi Siswa 💎
         </h2>
     </x-slot>
 
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
+    <!-- ✅ BACKGROUND GAMBAR (DIPERBAIKI Z-INDEX) -->
+    <div class="fixed inset-0 z-0">
+        <img src="https://i.pinimg.com/736x/e2/82/11/e28211b3375ead9a077e45ce270eb941.jpg"
+             class="w-full h-full object-cover">
+    </div>
 
-            <!-- Notifikasi Sukses -->
+    <!-- ✅ OVERLAY -->
+    <div class="fixed inset-0 z-0 bg-gradient-to-br from-blue-100/70 via-sky-200/60 to-blue-300/70"></div>
+
+    <style>
+        .glass {
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.4);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .card-hover:hover {
+            transform: translateY(-5px) scale(1.01);
+            transition: 0.3s;
+        }
+
+        .table-hover tr:hover {
+            background: rgba(59,130,246,0.1);
+        }
+    </style>
+
+    <!-- ✅ TAMBAH z-10 BIAR DI ATAS BACKGROUND -->
+    <div class="py-10 text-gray-800 relative z-10">
+        <div class="max-w-7xl mx-auto space-y-6">
+
+            <!-- NOTIF -->
             @if (session('success'))
-                <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative">
+                <div class="glass p-4 rounded-lg text-green-700 border border-green-300">
                     {{ session('success') }}
                 </div>
             @endif
 
-            <!-- Form Input Aspirasi -->
-            <div class="p-4 sm:p-8 bg-white shadow sm:rounded-lg">
-                <header>
-                    <h2 class="text-lg font-medium text-gray-900">Kirim Aspirasi Baru</h2>
-                    <p class="mt-1 text-sm text-gray-600">Laporkan masalah sarana dan prasarana di lingkungan sekolah.
+            <!-- STATISTIK -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+                <div class="glass p-6 rounded-xl card-hover">
+                    <h3 class="text-gray-600">Total Aspirasi</h3>
+                    <p class="text-3xl font-bold">{{ $aspirasis->count() }}</p>
+                </div>
+
+                <div class="glass p-6 rounded-xl card-hover">
+                    <h3 class="text-yellow-600">Pending</h3>
+                    <p class="text-3xl font-bold">
+                        {{ $aspirasis->where('status','pending')->count() }}
                     </p>
-                </header>
+                </div>
 
-                <form method="post" action="{{ route('aspirasi.store') }}" class="mt-6 space-y-4">
+                <div class="glass p-6 rounded-xl card-hover">
+                    <h3 class="text-green-600">Selesai</h3>
+                    <p class="text-3xl font-bold">
+                        {{ $aspirasis->where('status','done')->count() }}
+                    </p>
+                </div>
+
+            </div>
+
+            <!-- FORM -->
+            <div class="glass p-6 rounded-xl">
+                <h2 class="mb-4 text-lg font-semibold">Kirim Aspirasi</h2>
+
+                <form method="POST" action="{{ route('aspirasi.store') }}">
                     @csrf
-                    <div>
-                        <x-input-label for="category_id" value="Kategori Sarana" />
-                        <select id="category_id" name="category_id"
-                            class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
-                            @foreach ($categories as $cat)
-                                <option value="{{ $cat->id }}">{{ $cat->category_name }}</option>
-                            @endforeach
-                        </select>
-                    </div>
 
-                    <div>
-                        <x-input-label for="location" value="Lokasi Spesifik" />
-                        <x-text-input id="location" name="location" type="text" class="mt-1 block w-full"
-                            placeholder="Contoh: Lab Komputer 1, Kantin Atas" required />
-                    </div>
+                    <select name="category_id" class="w-full mb-3 p-2 rounded border border-gray-200">
+                        @foreach ($categories as $cat)
+                            <option value="{{ $cat->id }}">{{ $cat->category_name }}</option>
+                        @endforeach
+                    </select>
 
-                    <div>
-                        <x-input-label for="description" value="Detail Pengaduan" />
-                        <textarea id="description" name="description" rows="4"
-                            class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                            placeholder="Jelaskan detail kerusakan atau keluhan Anda..." required></textarea>
-                    </div>
+                    <input type="text" name="location"
+                           class="w-full mb-3 p-2 rounded border border-gray-200"
+                           placeholder="Lokasi" required>
 
-                    <div class="flex items-center gap-4">
-                        <x-primary-button>Kirim Laporan</x-primary-button>
-                    </div>
+                    <textarea name="description"
+                              class="w-full mb-3 p-2 rounded border border-gray-200"
+                              placeholder="Deskripsi" required></textarea>
+
+                    <button class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded shadow">
+                        Kirim 🚀
+                    </button>
                 </form>
             </div>
 
-            <!-- Tabel Riwayat Aspirasi -->
-            <div class="p-4 sm:p-8 bg-white shadow sm:rounded-lg">
-                <h2 class="text-lg font-medium text-gray-900 mb-4">Riwayat Aspirasi Saya</h2>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-sm text-left text-gray-500">
-                        <thead class="text-xs text-gray-700 uppercase bg-gray-50">
-                            <tr>
-                                <th class="px-6 py-3">Tanggal</th>
-                                <th class="px-6 py-3">Kategori</th>
-                                <th class="px-6 py-3">Lokasi</th>
-                                <th class="px-6 py-3">Status</th>
-                                <th class="px-6 py-3">Tanggapan Admin</th>
+            <!-- TABEL -->
+            <div class="glass p-6 rounded-xl">
+                <h2 class="mb-4 text-lg font-semibold">Riwayat</h2>
+
+                <table class="w-full text-sm table-hover">
+                    <thead class="border-b">
+                        <tr>
+                            <th class="py-2">Tanggal</th>
+                            <th>Kategori</th>
+                            <th>Lokasi</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @forelse($aspirasis as $row)
+                            <tr class="transition">
+                                <td class="py-2">{{ $row->created_at->format('d/m/Y') }}</td>
+                                <td>{{ $row->category->category_name }}</td>
+                                <td>{{ $row->location }}</td>
+                                <td>
+                                    <span class="px-2 py-1 rounded text-xs
+                                        {{ $row->status == 'pending' ? 'bg-yellow-200 text-yellow-800' : '' }}
+                                        {{ $row->status == 'processing' ? 'bg-blue-200 text-blue-800' : '' }}
+                                        {{ $row->status == 'done' ? 'bg-green-200 text-green-800' : '' }}">
+                                        {{ strtoupper($row->status) }}
+                                    </span>
+                                </td>
                             </tr>
-                        </thead>
-                        <tbody>
-                            @forelse($aspirasis as $row)
-                                <tr class="bg-white border-b">
-                                    <td class="px-6 py-4">{{ $row->created_at->format('d/m/Y') }}</td>
-                                    <td class="px-6 py-4 font-medium text-gray-900">{{ $row->category->category_name }}
-                                    </td>
-                                    <td class="px-6 py-4">{{ $row->location }}</td>
-                                    <td class="px-6 py-4">
-                                        <span
-                                            class="px-2 py-1 rounded text-xs font-bold
-                                        {{ $row->status == 'pending' ? 'bg-yellow-100 text-yellow-800' : '' }}
-                                        {{ $row->status == 'processing' ? 'bg-blue-100 text-blue-800' : '' }}
-                                        {{ $row->status == 'done' ? 'bg-green-100 text-green-800' : '' }}">
-                                            {{ strtoupper($row->status) }}
-                                        </span>
-                                    </td>
-                                    <td class="px-6 py-4 italic">
-                                        {{ $row->feedback->content ?? 'Belum ada tanggapan' }}
-                                    </td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="5" class="px-6 py-4 text-center">Belum ada laporan yang Anda kirim.
-                                    </td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
+                        @empty
+                            <tr>
+                                <td colspan="4" class="text-center py-4">
+                                    Belum ada data
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+
             </div>
 
         </div>
