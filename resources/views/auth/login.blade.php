@@ -1,48 +1,172 @@
-<x-guest-layout>
-    <!-- Session Status -->
-    <x-auth-session-status class="mb-4" :status="session('status')" />
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login</title>
 
-    <form method="POST" action="{{ route('login') }}">
-        @csrf
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
 
-        <!-- Email Address -->
-        <div>
-            <x-input-label for="username" :value="__('Username')" />
-            <x-text-input id="username" class="block mt-1 w-full" type="text" name="username" :value="old('username')" required
-                autofocus autocomplete="username" />
-            <x-input-error :messages="$errors->get('username')" class="mt-2" />
-        </div>
+<style>
+body {
+    margin: 0;
+    font-family: 'Outfit', sans-serif;
+    background: #050508;
 
-        <!-- Password -->
-        <div class="mt-4">
-            <x-input-label for="password" :value="__('Password')" />
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
 
-            <x-text-input id="password" class="block mt-1 w-full" type="password" name="password" required
-                autocomplete="current-password" />
+    overflow: hidden;
+}
 
-            <x-input-error :messages="$errors->get('password')" class="mt-2" />
-        </div>
+/* BACKGROUND */
+canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1;
+}
 
-        <!-- Remember Me -->
-        <div class="block mt-4">
-            <label for="remember_me" class="inline-flex items-center">
-                <input id="remember_me" type="checkbox"
-                    class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500" name="remember">
-                <span class="ms-2 text-sm text-gray-600">{{ __('Remember me') }}</span>
-            </label>
-        </div>
+/* WRAPPER */
+.container-center {
+    position: relative;
+    z-index: 10;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
 
-        <div class="flex items-center justify-end mt-4">
-            @if (Route::has('password.request'))
-                <a class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                    href="{{ route('password.request') }}">
-                    {{ __('Forgot your password?') }}
-                </a>
-            @endif
+/* CARD */
+.login-box {
+    width: 380px;
+    padding: 30px;
+    border-radius: 20px;
 
-            <x-primary-button class="ms-3">
-                {{ __('Log in') }}
-            </x-primary-button>
-        </div>
-    </form>
-</x-guest-layout>
+    backdrop-filter: blur(20px);
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+
+    color: white;
+    text-align: center;
+
+    animation: fadeIn 0.8s ease;
+}
+
+/* INPUT */
+.input {
+    width: 100%;
+    padding: 12px;
+    margin-top: 10px;
+    border-radius: 10px;
+    border: none;
+    outline: none;
+
+    background: rgba(255,255,255,0.1);
+    color: white;
+}
+
+/* BUTTON */
+.btn {
+    width: 100%;
+    margin-top: 20px;
+    padding: 12px;
+    border-radius: 10px;
+    border: none;
+
+    background: linear-gradient(135deg,#667eea,#764ba2);
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+/* LINK */
+.link {
+    margin-top: 10px;
+    display: block;
+    color: #aaa;
+    font-size: 13px;
+}
+.link:hover {
+    color: white;
+}
+
+/* ANIMASI */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+</style>
+</head>
+
+<body>
+
+<canvas id="neural-network-canvas"></canvas>
+
+<div class="container-center">
+    <div class="login-box">
+        <h2>Login</h2>
+
+        <form method="POST" action="{{ route('login') }}">
+            @csrf
+
+            <input type="text" name="username" placeholder="Username" class="input" required>
+            <input type="password" name="password" placeholder="Password" class="input" required>
+
+            <button class="btn">Login</button>
+
+            <a href="{{ route('register') }}" class="link">Belum punya akun? Register</a>
+        </form>
+    </div>
+</div>
+
+<!-- QUANTUM BG -->
+<script type="module">
+import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.162.0/build/three.module.js';
+
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(75, innerWidth/innerHeight, 0.1, 1000);
+const renderer = new THREE.WebGLRenderer({
+    canvas: document.getElementById("neural-network-canvas")
+});
+
+renderer.setSize(innerWidth, innerHeight);
+camera.position.z = 30;
+
+const geometry = new THREE.BufferGeometry();
+const vertices = [];
+
+for (let i = 0; i < 2000; i++) {
+    vertices.push(
+        (Math.random() - 0.5) * 100,
+        (Math.random() - 0.5) * 100,
+        (Math.random() - 0.5) * 100
+    );
+}
+
+geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
+
+const material = new THREE.PointsMaterial({ size: 0.2 });
+const points = new THREE.Points(geometry, material);
+
+scene.add(points);
+
+function animate() {
+    requestAnimationFrame(animate);
+    points.rotation.y += 0.001;
+    renderer.render(scene, camera);
+}
+
+animate();
+</script>
+
+</body>
+</html>
